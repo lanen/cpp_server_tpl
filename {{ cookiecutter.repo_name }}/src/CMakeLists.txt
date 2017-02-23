@@ -1,28 +1,21 @@
-file (GLOB_RECURSE PROJECT_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
-set (PROJECT_BIN ${PROJECT_NAME})
+cmake_minimum_required (VERSION 2.8)
 
-if (NOT DEFINED PROJECT_BUILD_SHARED)
-    if (CMAKE_CROSSCOMPILING)
-        set(PROJECT_BUILD_SHARED 0)
-    else (CMAKE_CROSSCOMPILING)
-        set(PROJECT_BUILD_SHARED 1)
-    endif (CMAKE_CROSSCOMPILING)
-endif (NOT DEFINED PROJECT_BUILD_SHARED)
+# 查找当前目录下的所有源文件
+set (exe agent_server)
+set (SRCS main.cpp
 
-if (NOT DEFINED PROJECT_BUILD_STATIC)
-set(PROJECT_BUILD_STATIC 1)
-endif (NOT DEFINED PROJECT_BUILD_STATIC)
+#    ../include/protoc/agent.pb.h
+#    ../include/protoc/agent.pb.cc
 
-if (PROJECT_BUILD_STATIC)
-    add_library(staticlib STATIC ${PROJECT_SRCS})
-    target_link_libraries(staticlib ${PROJECT_LIBS})
-    set_target_properties(staticlib PROPERTIES VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}" OUTPUT_NAME ${PROJECT_BIN} CLEAN_DIRECT_OUTPUT 1)
-    install(TARGETS staticlib DESTINATION lib)
-endif(PROJECT_BUILD_STATIC)
+#    Agent.hpp
+#    Agent.cpp
+)
 
-if (PROJECT_BUILD_SHARED)
-    add_library(sharedlib SHARED ${PROJECT_SRCS})
-    target_link_libraries(sharedlib ${PROJECT_LIBS})
-    set_target_properties(sharedlib PROPERTIES VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}" OUTPUT_NAME ${PROJECT_BIN} CLEAN_DIRECT_OUTPUT 1)
-    install(TARGETS sharedlib DESTINATION lib)
-endif(PROJECT_BUILD_SHARED)
+configure_file( ../etc/log.properties etc/log.properties COPYONLY)
+
+add_executable (${exe} ${SRCS})
+
+#target_link_libraries(${exe} framework netutil protobuf log4cplusU ev)
+
+install (TARGETS ${exe} RUNTIME DESTINATION bin)
+

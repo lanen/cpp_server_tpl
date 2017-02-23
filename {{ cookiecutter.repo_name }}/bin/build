@@ -6,7 +6,7 @@ base=$(cd "$bin";cd ..;pwd)
 rm -rf $base/build
 mkdir -p $base/build
 
-cd $bin
+cd $base/build
 cmake ..
 
 make

@@ -19,11 +19,35 @@ set (APPLICATION_VERSION_STRING "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERS
 #set (APPLICATION_VENDOR_URL "yourcompany.com")
 #set (APPLICATION_ID "${APPLICATION_VENDOR_ID}.${PROJECT_NAME}")
 
+# options
+# Options. Turn on with 'cmake -Dmyvarname=ON'.
+option(test "Build all tests." ON)
+option (debug_mode "Debug 开发模式" ON)
 
 #
 # Debugging Options
 #
+
 set (CMAKE_VERBOSE_MAKEFILE 0) # Use 1 for debugging, 0 for release
+if (debug_mode)
+    set(CMAKE_BUILD_TYPE Debug)
+else()
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# Use Release if no configuration specified
+#if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+#   set(CMAKE_BUILD_TYPE Release)
+#endif(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+
+if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall -Wno-unused-variable ")
+else()
+    # Release mode
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 ")
+endif()
+
+message("Build Type: ${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS}")
 
 
 #
@@ -32,8 +56,7 @@ set (CMAKE_VERBOSE_MAKEFILE 0) # Use 1 for debugging, 0 for release
 set (MAINFOLDER ${PROJECT_SOURCE_DIR})
 set (EXECUTABLE_OUTPUT_PATH "${MAINFOLDER}/bin")
 set (LIBRARY_OUTPUT_PATH "${MAINFOLDER}/lib")
-set (CATCH_DIR "${MAINFOLDER}/thirdparity/catch")
-
+set (GTEST_DIR "${MAINFOLDER}/thirdparity/gtest")
 
 #
 # Project Search Paths
@@ -42,18 +65,44 @@ list (APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}")
 include_directories("${MAINFOLDER}/include")
 
 
+# RPATH {
+set(CMAKE_MACOSX_RPATH 0)
+SET(MACOSX_RPATH 0)
+
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# RPATH }
+
+configure_file ( "${PROJECT_SOURCE_DIR}/include/stdcfg.hpp.in" "${PROJECT_SOURCE_DIR}/include/stdcfg.hpp" )
+
 #
 # Add Build Targets
 #
 add_subdirectory(src)
 
-enable_testing()
-add_subdirectory(test)
+if(test)
+    enable_testing()
+    include_directories("${MAINFOLDER}/test/include")
+    add_subdirectory(test)
+
+endif()
 
 
 #
 # Add Install Targets
 #
+
+set (CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/dist")
+
 if (EXISTS "${MAINFOLDER}/include/${PROJECT_NAME}" AND IS_DIRECTORY "${MAINFOLDER}/include/${PROJECT_NAME}")
-    install(DIRECTORY "${MAINFOLDER}/include/${PROJECT_NAME}" DESTINATION "include")
+    install(DIRECTORY "${MAINFOLDER}/include/${PROJECT_NAME}" DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 endif (EXISTS "${MAINFOLDER}/include/${PROJECT_NAME}" AND IS_DIRECTORY "${MAINFOLDER}/include/${PROJECT_NAME}")
+
+if (EXISTS "${MAINFOLDER}/etc" AND IS_DIRECTORY "${MAINFOLDER}/etc")
+    install(DIRECTORY "${MAINFOLDER}/etc" DESTINATION ${CMAKE_INSTALL_PREFIX}/etc)
+endif (EXISTS "${MAINFOLDER}/etc" AND IS_DIRECTORY "${MAINFOLDER}/etc")
+
+
+
