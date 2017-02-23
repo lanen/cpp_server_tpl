@@ -22,5 +22,5 @@
 
 # CMake build and output folders
 build/
-bin/
+#bin/
 lib/
