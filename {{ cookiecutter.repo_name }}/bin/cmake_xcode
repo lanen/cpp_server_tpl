@@ -7,7 +7,7 @@ rm -rf $base/build
 mkdir -p $base/build
 
 cd $bin
-cmake ..
+cmake -G Xcode ..
 
 make
 
