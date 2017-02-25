@@ -19,6 +19,18 @@ set (APPLICATION_VERSION_STRING "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERS
 #set (APPLICATION_VENDOR_URL "yourcompany.com")
 #set (APPLICATION_ID "${APPLICATION_VENDOR_ID}.${PROJECT_NAME}")
 
+set (APPLICATION_GIT_COMMIT "1")
+find_package(Git)
+if(GIT_FOUND)
+  message("git found: ${GIT_EXECUTABLE}")
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} log -n1 --pretty=%H
+            OUTPUT_VARIABLE GIT_COMMIT
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set (APPLICATION_GIT_COMMIT "${GIT_COMMIT}")
+endif()
+
+
 # options
 # Options. Turn on with 'cmake -Dmyvarname=ON'.
 option(test "Build all tests." ON)
